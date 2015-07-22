@@ -24,7 +24,7 @@ if [ "$1" = "export" ]; then
     done
     sudo tar -zcvf $2/volumes/volumeData.tar.gz -C /var/lib/docker/volumes . > /dev/null
     if [ -d /var/lib/docker/vfs ]; then
-	sudo tar -zcvf $2/volumes/vfsData.tar.gz -C /var/lib/docker/vfs .
+	sudo tar -zcvf $2/volumes/vfsData.tar.gz -C /var/lib/docker/vfs . > /dev/null
     fi
     #Above we copy the contents of those folders, instead of the whole directory tree
     
