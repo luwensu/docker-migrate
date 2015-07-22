@@ -26,7 +26,7 @@ if [ "$1" = "export" ]; then
 elif [ "$1" = "import" ]; then
     if [ ! -d "$2" ]; then
 	echo "Specified directory $2 does not exist"
-	quit
+	exit
     fi
     for i in $( ls $2/images ); do
 	echo $i
