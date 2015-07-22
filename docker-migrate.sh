@@ -37,10 +37,12 @@ elif [ "$1" = "import" ]; then
 	echo "Loading image "$i
 	sudo docker load < $2/images/$i
     done
-    sudo tar xzvf $2/volumes/volumeData.tar.gz
-    cp /var/lib/docker/volumes $2/volumes
-#    sudo mv $2/volumes/volumeData.tar /var/lib/docker
-#    sudo tar xvf /var/lib/docker/volumeData.tar
+    sudo tar xzvf $2/volumes/volumeData.tar.gz -C /var/lib/docker/volumes > /dev/null
+     if [ -d /var/lib/docker/vfs ]; then
+	 sudo tar -xzvf $2/volumes/vfsData.tar.gz -C /var/lib/docker/vfs > /dev/null
+     fi
+     echo "If you created directory " $2 " solely for the purpose of temporary storage for your files during the docker-migrate import/export process, you may now remove it if you so desire" 
+ 
 else
     echo "Please specify an option: 'import' or 'export' and try again"
 fi
