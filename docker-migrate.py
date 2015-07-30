@@ -26,8 +26,6 @@ if sys.argv[1] == "export" :
         if (i % 8 == 0):
             names.append(splitImages[i])
             tags.append(splitImages[i+1])
-    print names
-    print tags
     for i in range(0, len(names)):
         print("Saving image {0}:{1}".format(names[i], tags[i]))
         subprocess.call("sudo docker save {0}:{1} > {2}/images/{0}-{1}.tar".format(names[i], tags[i], sys.argv[2]), shell=True)
