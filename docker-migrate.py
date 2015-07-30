@@ -16,11 +16,21 @@ if sys.argv[1] == "export" :
         os.mkdir(sys.argv[2] + "/containers")
     if not os.path.isdir(sys.argv[2] + "/volumes"):
         os.mkdir(sys.argv[2] + "/volumes")
-    images = subprocess.check_output("sudo docker images -q", shell=True)
-    splitImages = images.split()
-    for i in splitImages:
-        print("Saving image {0}".format(i))
-        subprocess.call("sudo docker save {0} > {1}/images/{0}.tar".format(i, sys.argv[2]), shell=True)
+    # The following is some rather hacky list operations so that we can save images by name:tags instead of by ID
+    images = subprocess.check_output("sudo docker images", shell=True)
+    splitImages = images.split()[7:] # cut off the headers
+    names = []
+    tags = []
+    for i in range(0, len(splitImages)):
+        # only take the image and its tags
+        if (i % 8 == 0):
+            names.append(splitImages[i])
+            tags.append(splitImages[i+1])
+    print names
+    print tags
+    for i in range(0, len(names)):
+        print("Saving image {0}:{1}".format(names[i], tags[i]))
+        subprocess.call("sudo docker save {0}:{1} > {2}/images/{0}-{1}.tar".format(names[i], tags[i], sys.argv[2]), shell=True)
     subprocess.call("sudo tar -zcvf {0}/volumes/volumeData.tar.gz -C /var/lib/docker/volumes . > /dev/null".format(sys.argv[2]), shell=True)
     if os.path.isdir("/var/lib/docker/vfs"):
         subprocess.call("sudo tar -zcvf {0}/volumes/vfsData.tar.gz -C /var/lib/docker/vfs . > /dev/null".format(sys.argv[2]), shell=True)
