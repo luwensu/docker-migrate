@@ -5,10 +5,8 @@ import sys
 import os
 import subprocess
 
-if len(sys.argv) <= 3:
+if len(sys.argv) == 3:
     if sys.argv[1] == "export":
-        if len(sys.argv) != 3:
-            sys.exit("Please specify a directory and try again")
         if not os.path.isdir(sys.argv[2]):
             os.mkdir(sys.argv[2])
         if not os.path.isdir(sys.argv[2] + "/images"):
@@ -39,8 +37,6 @@ if len(sys.argv) <= 3:
             subprocess.call("sudo tar -zcvf {0}/volumes/vfsData.tar.gz -C /var/lib/docker/vfs . > /dev/null".format(sys.argv[2]), shell=True)
 
     elif sys.argv[1] == "import":
-        if len(sys.argv) != 3:
-            sys.exit("Please specify a directory and try again")
         if not os.path.isdir(sys.argv[2]):
             sys.exit("Specified directory {0} does not exist".format(sys.argv[2]))
         tarballs = subprocess.check_output("ls {0}/images".format(sys.argv[2]), shell=True)
@@ -54,7 +50,11 @@ if len(sys.argv) <= 3:
             subprocess.call(
                 "sudo tar -xzvf {0}/volumes/vfsData.tar.gz -C /var/lib/docker/vfs > /dev/null".format(sys.argv[2]), shell=True)
         print("If you created directory {0} solely for the purpose of temporary storage for your files during the docker-migrate import/export process, you may now remove it if you so desire".format(sys.argv[2]))
-    elif (sys.argv[1] == "help"):
+    else:
+        print("Please specify an option: 'import', 'export', or 'help' and try again")
+
+elif len(sys.argv) == 2:
+    if (sys.argv[1] == "help"):
         sys.exit("""
 # Docker-Migrate
 
@@ -86,4 +86,3 @@ Jenny Ramseyer, 2015
         print("Please specify an option: 'import', 'export', or 'help' and try again")
 else:
     print("Please specify an option: 'import', 'export', or 'help' and try again")
-    
