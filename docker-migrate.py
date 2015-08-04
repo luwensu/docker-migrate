@@ -29,8 +29,8 @@ if len(sys.argv) == 3:
         for i in range(0, len(names)):
             print("Saving image {0}:{1}".format(names[i], tags[i]))
             subprocess.call(
-                "sudo docker save {0}:{1} > {2}/images/{0}-{1}.tar".format(
-                    names[i], tags[i], sys.argv[2]), shell=True)
+                "sudo docker save {0}:{1} > {2}/images/{3}-{1}.tar".format(
+                    names[i], tags[i], sys.argv[2], names[i].replace("/", "~")), shell=True)
         subprocess.call(
             "sudo tar -zcvf {0}/volumes/volumeData.tar.gz -C /var/lib/docker/volumes . > /dev/null".format(sys.argv[2]), shell=True)
         if os.path.isdir("/var/lib/docker/vfs"):
