@@ -17,20 +17,27 @@ if len(sys.argv) == 3:
             os.mkdir(sys.argv[2] + "/volumes")
         # The following is some rather hacky list operations so that we
         # can save images by name:tags instead of by ID
-        images = subprocess.check_output("sudo docker images", shell=True)
+        images = subprocess.check_output("sudo docker images -a", shell=True)
         splitImages = images.split()[7:]  # cut off the headers
         names = []
         tags = []
+        ids = []
         for i in range(0, len(splitImages)):
-            # only take the image and its tags
+            # only take the image and its tags and the image ID (to help in the <none>:<none> case)
             if (i % 8 == 0):
                 names.append(splitImages[i])
                 tags.append(splitImages[i+1])
+                ids.append(splitImages[i+2])
         for i in range(0, len(names)):
             print("Saving image {0}:{1}".format(names[i], tags[i]))
-            subprocess.call(
-                "sudo docker save {0}:{1} > {2}/images/{3}-{1}.tar".format(
-                    names[i], tags[i], sys.argv[2], names[i].replace("/", "~")), shell=True)
+            if names[i] == '<none>':
+                subprocess.call(
+                    "sudo docker save {0} > {1}/images/{0}-{0}.tar".format(
+                        ids[i], sys.argv[2]), shell=True)
+            else:
+                subprocess.call(
+                    "sudo docker save {0}:{1} > {2}/images/{3}-{4}.tar".format(
+                        names[i], tags[i], sys.argv[2], names[i].replace("/", "~"), tags[i].replace("/", "~")), shell=True)
         subprocess.call(
             "sudo tar -zcvf {0}/volumes/volumeData.tar.gz -C /var/lib/docker/volumes . > /dev/null".format(sys.argv[2]), shell=True)
         if os.path.isdir("/var/lib/docker/vfs"):
