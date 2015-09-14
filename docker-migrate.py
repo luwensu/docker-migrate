@@ -5,6 +5,35 @@ import sys
 import os
 import subprocess
 
+def parse_image_info(image_info_line):
+    """
+    Parse each element in image info in one line into a list.
+    parameter ``image_info_line``: one line of the result
+                                   of ``docker image -a``
+    return ``image_info``: a list like [``REPOSITORY``,``TAG``,
+                                        ``IMAGE ID``,``CREATED``,
+                                        ``VIRTUAL SIZE``]
+    """
+    image_info = []
+    element = ""
+    for offset in range(0, len(image_info_line)):
+            if image_info_line[offset] == " ":
+                if image_info_line[offset-1] != " ":
+                    if image_info_line[offset+1] == " ":
+                        #meet the end of data space, pop data
+                        image_info.append(element)
+                        element = ""
+                    else:
+                        #space in data, add it
+                        element += image_info_line[offset]
+            else:
+                if offset+1 == len(image_info_line):
+                    #data stream ends, pop the last data
+                    image_info.append(element)
+                else:
+                    element += image_info_line[offset]
+    return image_info
+
 if len(sys.argv) == 3:
     if sys.argv[1] == "export":
         if not os.path.isdir(sys.argv[2]):
@@ -18,16 +47,15 @@ if len(sys.argv) == 3:
         # The following is some rather hacky list operations so that we
         # can save images by name:tags instead of by ID
         images = subprocess.check_output("sudo docker images -a", shell=True)
-        splitImages = images.split()[7:]  # cut off the headers
+        splitImages_lines = images.splitlines()[1:]  # cut off the headers
         names = []
         tags = []
         ids = []
-        for i in range(0, len(splitImages)):
-            # only take the image and its tags and the image ID (to help in the <none>:<none> case)
-            if (i % 8 == 0):
-                names.append(splitImages[i])
-                tags.append(splitImages[i+1])
-                ids.append(splitImages[i+2])
+        for i in splitImages_lines:
+            image_info = parse_image_info(i)
+            names.append(image_info[0])
+            tags.append(image_info[1])
+            ids.append(image_info[2])
         for i in range(0, len(names)):
             print("Saving image {0}:{1}".format(names[i], tags[i]))
             if names[i] == '<none>':
